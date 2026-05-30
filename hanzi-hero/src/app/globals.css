@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand — Chinese red */
+  --color-brand-50: #fff1f1;
+  --color-brand-100: #ffe0e0;
+  --color-brand-200: #ffc5c5;
+  --color-brand-300: #ff9d9d;
+  --color-brand-400: #ff6464;
+  --color-brand-500: #ff3030;
+  --color-brand-600: #e80000;
+  --color-brand-700: #c20000;
+  --color-brand-800: #a10000;
+  --color-brand-900: #840000;
+
+  /* Gold accent */
+  --color-gold-50: #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-200: #fde68a;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+  --color-gold-700: #b45309;
+  --color-gold-800: #92400e;
+  --color-gold-900: #78350f;
+
+  /* Jade — XP / success */
+  --color-jade-400: #34d399;
+  --color-jade-500: #10b981;
+  --color-jade-600: #059669;
+
+  /* Dark surfaces */
+  --color-surface-0: #0f0f13;
+  --color-surface-1: #16161d;
+  --color-surface-2: #1e1e28;
+  --color-surface-3: #2a2a38;
+  --color-surface-border: #2e2e3e;
+
+  /* Text */
+  --color-ink-primary: #f1f1f5;
+  --color-ink-secondary: #a0a0b8;
+  --color-ink-muted: #5c5c7a;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-surface-0);
+  color: var(--color-ink-primary);
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-1);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted);
+}
+
+/* Glow effects */
+.glow-brand {
+  box-shadow: 0 0 24px rgba(232, 0, 0, 0.35);
+}
+.glow-gold {
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
+}
+.glow-jade {
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+}
+
+/* Gradient text */
+.gradient-brand {
+  background: linear-gradient(135deg, #ff6464 0%, #e80000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-gold {
+  background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card base */
+.card {
+  background-color: var(--color-surface-1);
+  border: 1px solid var(--color-surface-border);
+  border-radius: 16px;
+}
+.card-elevated {
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-surface-border);
+  border-radius: 16px;
+}

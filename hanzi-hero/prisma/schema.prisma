@@ -1,0 +1,193 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Authentication ────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  avatarUrl    String?
+  passwordHash String?
+
+  currentLevel   Int      @default(1)
+  xp             Int      @default(0)
+  totalXp        Int      @default(0)
+
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActiveDate DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  progress      UserProgress[]
+  examResults   ExamResult[]
+  reports       DailyReport[]
+  wordOfDayLogs WordOfDayLog[]
+
+  @@index([email])
+}
+
+// ─── Curriculum ────────────────────────────────────────────────────────────────
+
+model Level {
+  id          Int    @id @default(autoincrement())
+  number      Int    @unique
+  title       String
+  description String
+  xpRequired  Int
+  hskRange    Int[]
+
+  lessons Lesson[]
+  exams   Exam[]
+}
+
+model Lesson {
+  id          String  @id @default(uuid())
+  levelId     Int
+  order       Int
+  title       String
+  description String
+  scenario    String?
+  xpReward    Int     @default(10)
+
+  level   Level         @relation(fields: [levelId], references: [id])
+  entries LessonEntry[]
+
+  @@unique([levelId, order])
+}
+
+model LessonEntry {
+  lessonId          String
+  dictionaryEntryId String
+  order             Int
+
+  lesson Lesson          @relation(fields: [lessonId], references: [id])
+  entry  DictionaryEntry @relation(fields: [dictionaryEntryId], references: [id])
+
+  @@id([lessonId, dictionaryEntryId])
+}
+
+// ─── Dictionary ────────────────────────────────────────────────────────────────
+
+model DictionaryEntry {
+  id          String   @id @default(uuid())
+  simplified  String   @unique
+  traditional String?
+  pinyin      String
+  pinyinTones String
+  meanings    String[]
+  hskLevel    Int
+  strokeData  Json?
+  audioUrl    String?
+
+  examples      Example[]
+  lessonEntries LessonEntry[]
+  userProgress  UserProgress[]
+  wordOfDayLogs WordOfDayLog[]
+
+  @@index([hskLevel])
+  @@index([simplified])
+}
+
+model Example {
+  id                String @id @default(uuid())
+  dictionaryEntryId String
+  simplified        String
+  pinyin            String
+  translation       String
+  audioUrl          String?
+
+  entry DictionaryEntry @relation(fields: [dictionaryEntryId], references: [id])
+}
+
+// ─── Spaced Repetition (SM-2) ──────────────────────────────────────────────────
+
+model UserProgress {
+  id                String    @id @default(uuid())
+  userId            String
+  dictionaryEntryId String
+
+  easeFactor     Float    @default(2.5)
+  interval       Int      @default(0)
+  repetitions    Int      @default(0)
+  nextReviewDate DateTime @default(now())
+  masteryLevel   Int      @default(0)
+
+  lastReviewedAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  user  User            @relation(fields: [userId], references: [id])
+  entry DictionaryEntry @relation(fields: [dictionaryEntryId], references: [id])
+
+  @@unique([userId, dictionaryEntryId])
+  @@index([userId, nextReviewDate])
+}
+
+// ─── Exams & Gatekeeping ───────────────────────────────────────────────────────
+
+model Exam {
+  id       String @id @default(uuid())
+  levelId  Int
+  title    String
+  passMark Int    @default(80)
+  attempts Int    @default(3)
+
+  level   Level        @relation(fields: [levelId], references: [id])
+  results ExamResult[]
+}
+
+model ExamResult {
+  id         String   @id @default(uuid())
+  userId     String
+  examId     String
+  score      Int
+  passed     Boolean
+  attemptNum Int
+  takenAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  exam Exam @relation(fields: [examId], references: [id])
+
+  @@index([userId, examId])
+}
+
+// ─── Gamification ─────────────────────────────────────────────────────────────
+
+model WordOfDayLog {
+  id                String   @id @default(uuid())
+  userId            String
+  dictionaryEntryId String
+  servedAt          DateTime @default(now())
+
+  user  User            @relation(fields: [userId], references: [id])
+  entry DictionaryEntry @relation(fields: [dictionaryEntryId], references: [id])
+
+  @@unique([userId, servedAt])
+}
+
+// ─── Reporting ─────────────────────────────────────────────────────────────────
+
+model DailyReport {
+  id            String   @id @default(uuid())
+  userId        String
+  date          DateTime @default(now())
+  wordsLearned  Int      @default(0)
+  wordsReviewed Int      @default(0)
+  accuracy      Float
+  xpEarned      Int      @default(0)
+  streakDay     Int      @default(0)
+  emailSent     Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
